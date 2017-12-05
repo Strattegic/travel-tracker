@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">TravelApp</string>
+    <string name="title_home">Home</string>
+    <string name="title_tracker">Tracker</string>
+
+    // Tracker
+    <string name="tracker_enable_tracking">Enable Tracking</string>
+    <string name="tracker_tracking_interval">Tracking Interval</string>
+    <string name="tracker_tracking_interval_sub">Time between each tracked location</string>
+    <string name="tracker_tracking_interval_min">1h</string>
+    <string name="tracker_tracking_interval_max">8h</string>
+    <string name="tracker_update_cellular">Update location using cellular</string>
+    <string name="tracker_update_cellular_sub">Recommendation: Off</string>
+</resources>
