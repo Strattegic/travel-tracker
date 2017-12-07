@@ -11,4 +11,5 @@
     <string name="tracker_tracking_interval_max">8h</string>
     <string name="tracker_update_cellular">Update location using cellular</string>
     <string name="tracker_update_cellular_sub">Recommendation: Off</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
