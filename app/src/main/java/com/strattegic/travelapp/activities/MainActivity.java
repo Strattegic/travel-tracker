@@ -1,15 +1,14 @@
-package com.strattegic.travelapp;
+package com.strattegic.travelapp.activities;
 
 import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+
+import com.strattegic.travelapp.R;
 
 public class MainActivity extends AppCompatActivity {
     private static AlarmManager alarmManager;
