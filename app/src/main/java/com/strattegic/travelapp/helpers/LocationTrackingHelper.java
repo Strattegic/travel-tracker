@@ -1,22 +1,57 @@
 package com.strattegic.travelapp.helpers;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
+import com.strattegic.travelapp.activities.HomeActivity;
 import com.strattegic.travelapp.common.GPSBroadcastReceiver;
+import com.strattegic.travelapp.data.LocationContainer;
+import com.strattegic.travelapp.data.LocationData;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Created by Stratti on 08/12/2017.
@@ -24,33 +59,164 @@ import com.strattegic.travelapp.common.GPSBroadcastReceiver;
 
 public class LocationTrackingHelper {
 
-    public static final String PREFERENCES__SEND_LOCATION_DATA = "SEND_LOCATION_DATA";
-    public static final String DATA__LAST_DATA_SEND = "LAST_DATA_SEND";
-    private static AlarmManager am;
-    private static LocationRequest locationRequest;
-    private static LocationCallback mLocationCallback;
+    private static final int LOCATION_TRACKING_INTENT = 1337;
+    protected static Gson gson;
+    private static FusedLocationProviderClient mFusedLocationClient;
 
-    public static void toggleGPSTracking( boolean enabled, Context context ){
+    public static void toggleGPSTracking(boolean enabled, final Activity activity){
+        LocationTrackingHelper.toggleGPSTracking(enabled, activity, 1000);
+    }
 
-        if( am == null ){
-            am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    public static void toggleGPSTracking(boolean enabled, final Activity activity, int interval){
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        Intent intent = new Intent(activity, GPSBroadcastReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(activity, LocationTrackingHelper.LOCATION_TRACKING_INTENT, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if( enabled ) {
+            LocationRequest locationRequest = buildLocationRequest(interval);
+            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                    .addLocationRequest(locationRequest);
+
+            SettingsClient client = LocationServices.getSettingsClient(activity);
+
+            // create a task that checks if all location permissions are given
+            // if not, Android asks for the remaining permissions
+            Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+            task.addOnFailureListener(activity, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d("GPSTracking", "task failed");
+                    int statusCode = ((ApiException) e).getStatusCode();
+                    switch (statusCode) {
+                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+
+                            try {
+                                // Show the dialog by calling startResolutionForResult()
+                                ResolvableApiException rae = (ResolvableApiException) e;
+                                rae.startResolutionForResult(activity, 33);
+                            } catch (IntentSender.SendIntentException sie) {
+                                sie.printStackTrace();
+                            }
+                            break;
+                    }
+                }
+            });
+
+            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                Log.d("GPS", "No permission given to track the location");
+                return;
+            }
+            mFusedLocationClient.requestLocationUpdates(locationRequest, pendingIntent);
         }
-
-        Intent intent = new Intent( context, GPSBroadcastReceiver.class );
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
-        long firstTime = SystemClock.elapsedRealtime();
-        firstTime += 5 * 1000;//start 5 seconds after first register.
-
-        if( enabled ){
-            // Schedule the alarm!
-            // TODO: Interval should be set by the user
-            am.setRepeating(AlarmManager.RTC_WAKEUP, firstTime, (9*1000), pendingIntent);
+        else
+        {
+            mFusedLocationClient.removeLocationUpdates(pendingIntent);
         }
-        else{
-            am.cancel(pendingIntent);
-        }
+    }
 
+    /**
+     * Build a location request that runs in the given interval
+     * @param interval
+     * @return
+     */
+    private static LocationRequest buildLocationRequest(int interval) {
+        final LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(interval);
+        locationRequest.setFastestInterval(5000);
+        return locationRequest;
+    }
+
+
+    /**
+     * Sends the location data to the server.
+     * <p>After that the last sent date is saved in the preferences.</p>
+     * @param data
+     * @return
+     */
+    public static boolean sendLocation(LocationData data) {
+        String url = "http://192.168.100.68/api/locations";
+
+        if( gson == null ){
+            gson = new Gson();
+        }
+        OkHttpClient client = new OkHttpClient();
+
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, gson.toJson(data));
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    Log.d("GPS", response.body().toString());
+                    throw new IOException("Unexpected code " + response);
+                } else {
+                    // do something wih the result
+                    // preferences.edit().putLong(LocationTrackingHelper.DATA__LAST_DATA_SEND, new Date().getTime()).commit();
+                    Log.d("GPS", response.body().toString());
+                }
+            }
+        });
+        return false;
+    }
+
+    private void saveLocationOnDevice(LocationData data, Context context) {
+
+        try {
+            boolean hasLocationsFile = false;
+            for( String applicationFile : context.fileList() )
+            {
+                if( applicationFile.equals("locations.json") ){
+                    hasLocationsFile = true;
+                    break;
+                }
+            }
+
+            LocationContainer locationContainer;
+            if( hasLocationsFile ) {
+                FileInputStream locationsInput = context.openFileInput("locations.json");
+                InputStreamReader isr = new InputStreamReader(locationsInput, "UTF-8");
+                Reader reader = new BufferedReader(isr);
+                JsonReader jsonReader = new JsonReader(reader);
+
+                locationContainer = gson.fromJson(jsonReader, LocationContainer.class);
+                locationsInput.close();
+            }
+            else{
+                locationContainer = new LocationContainer();
+            }
+            locationContainer.addLocation( data );
+
+            FileOutputStream locationsOutput = context.openFileOutput("locations.json", Context.MODE_PRIVATE);
+            locationsOutput.write(gson.toJson(locationContainer).getBytes());
+            locationsOutput.close();
+
+            //preferences.edit().putString(LocationTrackingHelper.DATA__LAST_KNOWN_LATITUDE, String.valueOf( data.getLat() ) )
+            //        .putString(LocationTrackingHelper.DATA__LAST_KNOWN_LONGITUDE, String.valueOf( data.getLon() ) )
+            //        .commit();
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

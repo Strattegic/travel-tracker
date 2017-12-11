@@ -23,10 +23,11 @@ import com.strattegic.travelapp.helpers.LocationTrackingHelper;
 
 public class TrackerActivity extends MainActivity implements CompoundButton.OnCheckedChangeListener {
 
-    private final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
+    private final int PERMISSIONS_REQUEST_LOCATION = 1;
 
     private static final String[] LOCATION_PERMS={
-            android.Manifest.permission.ACCESS_FINE_LOCATION
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
     };
     private Switch toggleLocationTrackingButton;
 
@@ -66,12 +67,7 @@ public class TrackerActivity extends MainActivity implements CompoundButton.OnCh
             LocationTrackingHelper.toggleGPSTracking(false, this);
         } else if (!hasLocationPermission()) {
             // request permissions
-            ActivityCompat.requestPermissions(this, LOCATION_PERMS, PERMISSIONS_REQUEST_FINE_LOCATION);
-            /*if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                // Show an explanation why the location permission is needed
-            } else {
-                ActivityCompat.requestPermissions(this, LOCATION_PERMS, PERMISSIONS_REQUEST_FINE_LOCATION);
-            }*/
+            ActivityCompat.requestPermissions(this, LOCATION_PERMS, PERMISSIONS_REQUEST_LOCATION);
         } else {
             // activate the tracking
             LocationTrackingHelper.toggleGPSTracking(true, this);
@@ -82,7 +78,7 @@ public class TrackerActivity extends MainActivity implements CompoundButton.OnCh
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case PERMISSIONS_REQUEST_FINE_LOCATION: {
+            case PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -90,16 +86,9 @@ public class TrackerActivity extends MainActivity implements CompoundButton.OnCh
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
                     toggleLocationTracking(true);
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
