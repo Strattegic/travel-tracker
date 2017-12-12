@@ -1,14 +1,17 @@
-package com.strattegic.travelapp.activities;
+package com.strattegic.travelapp.fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -18,59 +21,71 @@ import com.strattegic.travelapp.R;
 import com.strattegic.travelapp.helpers.LocationTrackingHelper;
 
 /**
- * Created by Strattegic on 01/12/2017.
+ * Created by Stratti on 12/12/2017.
  */
 
-public class TrackerActivity extends MainActivity implements CompoundButton.OnCheckedChangeListener {
+public class TrackerFragment extends Fragment implements CompoundButton.OnCheckedChangeListener {
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_tracker, container, false);
+    }
 
     private final int PERMISSIONS_REQUEST_LOCATION = 1;
 
+    // required permission for the tracking
     private static final String[] LOCATION_PERMS={
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
     };
     private Switch toggleLocationTrackingButton;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ScrollView frameLayout = (ScrollView) findViewById( R.id.content );
-        View wiz = getLayoutInflater().inflate( R.layout.activity_tracker, null );
-        frameLayout.addView( wiz );
+    }
 
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation);
         bottomNavigationView.getMenu().findItem(R.id.navigation_tracker).setChecked(true);
 
-        toggleLocationTrackingButton = (Switch) findViewById(R.id.switchTrackingToggle);
+        toggleLocationTrackingButton = view.findViewById(R.id.switchTrackingToggle);
         toggleLocationTrackingButton.setOnCheckedChangeListener( this );
 
-        SeekBar bar = (SeekBar) findViewById(R.id.seekBar_tracking_interval);
+        SeekBar bar = getActivity().findViewById(R.id.seekBar_tracking_interval);
         bar.setEnabled(false);
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         // toggle settings
-        findViewById(R.id.seekBar_tracking_interval).setEnabled( isChecked );
-        findViewById(R.id.switch_cellular).setEnabled( isChecked );
+        getActivity().findViewById(R.id.seekBar_tracking_interval).setEnabled( isChecked );
+        getActivity().findViewById(R.id.switch_cellular).setEnabled( isChecked );
 
         // toggle location tracking
         toggleLocationTracking( isChecked );
     }
 
+    /**
+     * Enables / disables the location tracking
+     * it also toggles the PendingIntent that runs in the background
+     * @param enableTracking
+     */
     private void toggleLocationTracking( boolean enableTracking ) {
 
         toggleLocationTrackingButton.setChecked(false);
 
         if (!enableTracking) {
             // disable the tracking
-            LocationTrackingHelper.toggleGPSTracking(false, this);
+            LocationTrackingHelper.toggleGPSTracking(false, getActivity());
         } else if (!hasLocationPermission()) {
             // request permissions
-            ActivityCompat.requestPermissions(this, LOCATION_PERMS, PERMISSIONS_REQUEST_LOCATION);
+            ActivityCompat.requestPermissions(getActivity(), LOCATION_PERMS, PERMISSIONS_REQUEST_LOCATION);
         } else {
             // activate the tracking
-            LocationTrackingHelper.toggleGPSTracking(true, this);
+            LocationTrackingHelper.toggleGPSTracking(true, getActivity());
             toggleLocationTrackingButton.setChecked(true);
         }
     }
@@ -93,6 +108,6 @@ public class TrackerActivity extends MainActivity implements CompoundButton.OnCh
     }
 
     private boolean hasLocationPermission(){
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 }
