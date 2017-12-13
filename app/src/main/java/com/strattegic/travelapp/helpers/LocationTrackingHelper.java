@@ -2,43 +2,36 @@ package com.strattegic.travelapp.helpers;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import com.strattegic.travelapp.activities.HomeActivity;
 import com.strattegic.travelapp.common.GPSBroadcastReceiver;
+import com.strattegic.travelapp.common.TrackingDefines;
 import com.strattegic.travelapp.data.LocationContainer;
 import com.strattegic.travelapp.data.LocationData;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -143,11 +136,12 @@ public class LocationTrackingHelper {
      * @return
      */
     public static boolean sendLocation(LocationData data) {
-        String url = "http://192.168.100.68/api/locations";
+        String url = TrackingDefines.WEBSERVICE_URL_LOCATIONS;
 
         if( gson == null ){
             gson = new Gson();
         }
+
         OkHttpClient client = new OkHttpClient();
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -178,7 +172,16 @@ public class LocationTrackingHelper {
         return false;
     }
 
-    private void saveLocationOnDevice(LocationData data, Context context) {
+    /**
+     * TODO: fertig implementieren
+     * @param data
+     * @param context
+     */
+    public static void saveLocationOnDevice(LocationData data, Context context) {
+
+        if( gson == null ){
+            gson = new Gson();
+        }
 
         try {
             boolean hasLocationsFile = false;
@@ -198,6 +201,11 @@ public class LocationTrackingHelper {
                 JsonReader jsonReader = new JsonReader(reader);
 
                 locationContainer = gson.fromJson(jsonReader, LocationContainer.class);
+
+                if( locationContainer == null )
+                {
+                    locationContainer = new LocationContainer();
+                }
                 locationsInput.close();
             }
             else{
@@ -218,5 +226,30 @@ public class LocationTrackingHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getLastLocationsAsText(Context context){
+
+        try {
+            FileInputStream locationsInput = context.openFileInput("locations.json");
+            InputStreamReader isr = new InputStreamReader(locationsInput, "UTF-8");
+            Reader reader = new BufferedReader(isr);
+            JsonReader jsonReader = new JsonReader(reader);
+
+            LocationContainer locationContainer = gson.fromJson(jsonReader, LocationContainer.class);
+            StringBuilder builder = new StringBuilder();
+            for( LocationData loc : locationContainer.getLocations() ){
+                builder.append(loc.getLat()).append(", ").append(loc.getLon());
+                builder.append("\n");
+            }
+            locationsInput.close();
+            isr.close();
+            reader.close();
+            jsonReader.close();
+            return builder.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

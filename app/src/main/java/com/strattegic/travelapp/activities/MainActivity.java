@@ -10,11 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.strattegic.travelapp.R;
+import com.strattegic.travelapp.common.SessionManager;
 import com.strattegic.travelapp.fragments.HomeFragment;
 import com.strattegic.travelapp.fragments.TrackerFragment;
 
 public class MainActivity extends AppCompatActivity {
 
+    private SessionManager session;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -41,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        session = new SessionManager(getApplicationContext());
+        session.checkLogin();
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);

@@ -7,9 +7,23 @@
     <string name="tracker_enable_tracking">Enable Tracking</string>
     <string name="tracker_tracking_interval">Tracking Interval</string>
     <string name="tracker_tracking_interval_sub">Time between each tracked location</string>
-    <string name="tracker_tracking_interval_min">1h</string>
+    <string name="tracker_tracking_interval_min">0.5h</string>
     <string name="tracker_tracking_interval_max">8h</string>
     <string name="tracker_update_cellular">Update location using cellular</string>
     <string name="tracker_update_cellular_sub">Recommendation: Off</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
 </resources>

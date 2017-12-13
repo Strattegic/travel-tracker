@@ -22,11 +22,12 @@ public class GPSBroadcastReceiver extends BroadcastReceiver {
         LocationResult result = (LocationResult) intent.getExtras().get(ANDROID_LOCATION_RESULT_KEY);
         if( result != null ){
             // TODO: log the location
-            //Toast.makeText(context, result.toString(), Toast.LENGTH_SHORT).show();
+            // Toast.makeText(context, result.toString(), Toast.LENGTH_SHORT).show();
             LocationData data = new LocationData();
             data.setLat( result.getLastLocation().getLatitude() );
-            data.setLat( result.getLastLocation().getLongitude() );
-            LocationTrackingHelper.sendLocation(data);
+            data.setLon( result.getLastLocation().getLongitude() );
+            // LocationTrackingHelper.sendLocation(data);
+            LocationTrackingHelper.saveLocationOnDevice(data, context);
         }
         else {
             // TODO: log that there is no location available
