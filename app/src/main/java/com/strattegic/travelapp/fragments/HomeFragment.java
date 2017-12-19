@@ -26,6 +26,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.strattegic.travelapp.R;
+import com.strattegic.travelapp.common.LoomisaWebservice;
 import com.strattegic.travelapp.common.TrackingDefines;
 
 import org.json.JSONArray;
@@ -68,7 +69,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void updateLastLocations() {
-        String url = TrackingDefines.WEBSERVICE_URL_LOCATIONS;
+        String url = LoomisaWebservice.WEBSERVICE_URL_LOCATIONS;
         RequestQueue queue = Volley.newRequestQueue(getContext());
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {

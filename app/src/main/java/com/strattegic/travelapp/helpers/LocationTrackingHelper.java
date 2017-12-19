@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.strattegic.travelapp.common.GPSBroadcastReceiver;
+import com.strattegic.travelapp.common.LoomisaWebservice;
 import com.strattegic.travelapp.common.TrackingDefines;
 import com.strattegic.travelapp.data.LocationContainer;
 import com.strattegic.travelapp.data.LocationData;
@@ -135,23 +136,9 @@ public class LocationTrackingHelper {
      * @param data
      * @return
      */
-    public static boolean sendLocation(LocationData data) {
-        String url = TrackingDefines.WEBSERVICE_URL_LOCATIONS;
+    public static void sendLocation(LocationData data) {
+        LoomisaWebservice.getInstance().uploadLocations(data, new Callback(){
 
-        if( gson == null ){
-            gson = new Gson();
-        }
-
-        OkHttpClient client = new OkHttpClient();
-
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSON, gson.toJson(data));
-
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -169,7 +156,6 @@ public class LocationTrackingHelper {
                 }
             }
         });
-        return false;
     }
 
     /**

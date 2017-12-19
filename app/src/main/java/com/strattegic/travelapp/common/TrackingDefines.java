@@ -5,7 +5,6 @@ package com.strattegic.travelapp.common;
  */
 
 public class TrackingDefines {
-    public static final String WEBSERVICE_URL_LOCATIONS = "http://192.168.100.68/api/locations";
 
     public static final String SETTINGS_TRACKING_ENABLED = "SETTINGS_TRACKING_ENABLED";
     public static final String SETTINGS_TRACKING_INTERVAL = "SETTINGS_TRACKING_INTERVAL";

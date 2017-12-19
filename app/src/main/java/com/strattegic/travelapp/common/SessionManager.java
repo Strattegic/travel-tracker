@@ -15,9 +15,11 @@ public class SessionManager {
     private final SharedPreferences pref;
     private final SharedPreferences.Editor editor;
 
-    private final String PREF_NAME = "SessionPreferences";
-    private final String PREF_KEY_IS_LOGIN = "isLogin";
-    private final String PREF_KEY_EMAIL = "email";
+    private static final String PREF_NAME = "SessionPreferences";
+    private static final String PREF_KEY_IS_LOGIN = "isLogin";
+    private static final String PREF_KEY_EMAIL = "email";
+    private static final String PREF_KEY_ACCESS_TOKEN = "accessToken";
+    private static final String PREF_KEY_REFRESH_TOKEN = "refreshToken";
     private final int PRIVATE_MODE = 0;
 
     public SessionManager(Context context){
@@ -30,8 +32,10 @@ public class SessionManager {
      * Login a user.
      * @param email
      */
-    public void login(String email) {
+    public void login(String email, String accessToken, String refreshToken) {
         editor.putString(PREF_KEY_EMAIL, email);
+        editor.putString(PREF_KEY_ACCESS_TOKEN, accessToken);
+        editor.putString(PREF_KEY_REFRESH_TOKEN, refreshToken);
         editor.putBoolean(PREF_KEY_IS_LOGIN, true);
         editor.commit();
     }

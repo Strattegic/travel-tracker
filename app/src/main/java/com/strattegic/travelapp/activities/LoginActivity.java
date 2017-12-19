@@ -31,6 +31,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.strattegic.travelapp.R;
+import com.strattegic.travelapp.common.LoomisaWebservice;
 import com.strattegic.travelapp.common.SessionManager;
 import com.strattegic.travelapp.common.TrackingDefines;
 
@@ -206,7 +207,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() > 2;
     }
 
     /**
@@ -315,8 +316,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
 
+            // TODO: attempt authentication against a network service.
+            LoomisaWebservice.getInstance().login(String.valueOf(params[0]), String.valueOf(params[1]), getApplicationContext());
+            return false;
+
+            // sessionManager.login(mEmail);
+            /*
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
@@ -327,14 +333,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
-                    sessionManager.login(mEmail);
                     // Account exists, return true if the password matches.
                     return pieces[1].equals(mPassword);
                 }
             }
 
-            // TODO: register the new account here.
-            return true;
+            if( mPassword.isEmpty() ){
+                // TODO: register the new account here.
+
+            }
+            return false;
+            */
         }
 
         @Override
