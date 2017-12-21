@@ -7,6 +7,7 @@ package com.strattegic.travelapp.data;
 public class LocationData {
     private double lon;
     private double lat;
+    private String addedOn;
 
     public double getLat() {
         return lat;
@@ -22,5 +23,13 @@ public class LocationData {
 
     public void setLon(double lon) {
         this.lon = lon;
+    }
+
+    public String getAddedOn() {
+        return addedOn;
+    }
+
+    public void setAddedOn(String addedOn) {
+        this.addedOn = addedOn;
     }
 }

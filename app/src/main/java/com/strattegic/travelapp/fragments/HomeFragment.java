@@ -6,53 +6,49 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
 import com.strattegic.travelapp.R;
 import com.strattegic.travelapp.common.LoomisaWebservice;
-import com.strattegic.travelapp.common.TrackingDefines;
+import com.strattegic.travelapp.common.LoomisaWebserviceCallback;
+import com.strattegic.travelapp.data.LocationData;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
+import java.io.IOException;
 import java.util.ArrayList;
+
+import okhttp3.Call;
 
 /**
  * Created by Stratti on 12/12/2017.
  */
 
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
-    private GoogleMap mMap;
-    private ArrayList<LatLng> locations;
+    private GoogleMap map;
+    private ArrayList<LatLng> allLocations;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_home, container, false);
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        locations = new ArrayList<>();
+        allLocations = new ArrayList<>();
         BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation);
         bottomNavigationView.getMenu().findItem(R.id.navigation_home).setChecked(true);
     }
@@ -65,61 +61,60 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        updateLastLocations();
-    }
-
-    private void updateLastLocations() {
-        String url = LoomisaWebservice.WEBSERVICE_URL_LOCATIONS;
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+        // get the current locations for the user and update the view accordingly
+        LoomisaWebservice.getInstance().getLocations(getContext(), new LoomisaWebserviceCallback(getContext()) {
             @Override
-            public void onResponse(JSONArray response) {
-                LinearLayout table = getActivity().findViewById( R.id.linearLayout_table_last_locations_content );
-                TableRow.LayoutParams params = new TableRow.LayoutParams( TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT );
-                params.weight = 0.3f;
-                TableRow.LayoutParams paramsLong = new TableRow.LayoutParams( TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT );
-                paramsLong.weight = 0.19f;
+            public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                Gson gson = new Gson();
+                final LocationData[] locations = gson.fromJson(response.body().charStream(), LocationData[].class);
+                Log.i("Locations", "successfully received locations" + locations);
 
-                for (int i = 0; i < response.length(); i++) {
-                    try {
-                        TableRow row = new TableRow( getActivity().getBaseContext() );
-
-                        // Date
-                        TextView dateText = new TextView( getActivity().getBaseContext() );
-                        dateText.setText( response.getJSONObject(i).get("added_on").toString() );
-                        dateText.setLayoutParams(paramsLong);
-                        row.addView( dateText );
-
-                        // lat
-                        TextView latText = new TextView( getActivity().getBaseContext() );
-                        latText.setText( response.getJSONObject(i).get("lat").toString() );
-                        latText.setLayoutParams(params);
-                        row.addView( latText );
-
-                        // lon
-                        TextView lonText = new TextView( getActivity().getBaseContext() );
-                        lonText.setText( response.getJSONObject(i).get("lon").toString() );
-                        lonText.setLayoutParams(params);
-                        row.addView( lonText );
-
-                        // add row to the table
-                        table.addView( row );
-
-                        locations.add(new LatLng(Double.parseDouble(response.getJSONObject(i).get("lat").toString()), Double.parseDouble(response.getJSONObject(i).get("lon").toString())));
-                        drawLocationsOnMap();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                // update the UI
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateLocations(locations);
                     }
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                System.out.println( error );
+                });
             }
         });
-        queue.add(jsonArrayRequest);
+    }
+
+    private void updateLocations(LocationData[] locations) {
+
+        LinearLayout table = getActivity().findViewById( R.id.linearLayout_table_last_locations_content );
+        TableRow.LayoutParams params = new TableRow.LayoutParams( TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT );
+        params.weight = 0.3f;
+        TableRow.LayoutParams paramsLong = new TableRow.LayoutParams( TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT );
+        paramsLong.weight = 0.19f;
+
+        for (int i = 0; i < locations.length; i++) {
+            TableRow row = new TableRow( getActivity().getBaseContext() );
+
+            // Date
+            TextView dateText = new TextView( getActivity().getBaseContext() );
+            dateText.setText( locations[i].getAddedOn() );
+            dateText.setLayoutParams(paramsLong);
+            row.addView( dateText );
+
+            // lat
+            TextView latText = new TextView( getActivity().getBaseContext() );
+            latText.setText( String.valueOf( locations[i].getLat() ) );
+            latText.setLayoutParams(params);
+            row.addView( latText );
+
+            // lon
+            TextView lonText = new TextView( getActivity().getBaseContext() );
+            lonText.setText( String.valueOf( locations[i].getLon() ) );
+            lonText.setLayoutParams(params);
+            row.addView( lonText );
+
+            // add row to the table
+            table.addView( row );
+
+            allLocations.add(new LatLng(locations[i].getLat(), locations[i].getLon()));
+            drawLocationsOnMap();
+        }
     }
 
     /**
@@ -133,14 +128,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        map = googleMap;
         drawLocationsOnMap();
     }
 
     private void drawLocationsOnMap(){
-        if( !locations.isEmpty() ){
-            mMap.addPolyline(new PolylineOptions()
-                    .addAll(locations)
+        if( !allLocations.isEmpty() ){
+            map.addPolyline(new PolylineOptions()
+                    .addAll(allLocations)
                     .width(5)
                     .color(Color.RED));
         }

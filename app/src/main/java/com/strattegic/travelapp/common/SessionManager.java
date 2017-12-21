@@ -28,6 +28,10 @@ public class SessionManager {
         this.editor = pref.edit();
     }
 
+    public String getAccessToken(){
+        return pref.getString(PREF_KEY_ACCESS_TOKEN, null);
+    }
+
     /**
      * Login a user.
      * @param email
@@ -40,7 +44,7 @@ public class SessionManager {
         editor.commit();
     }
 
-    public void checkLogin(){
+    public boolean checkLogin(){
         // Check login status
         if(!this.isLoggedIn()){
             // user is not logged in redirect him to Login Activity
@@ -53,8 +57,9 @@ public class SessionManager {
 
             // Staring Login Activity
             context.startActivity(i);
+            return false;
         }
-
+        return true;
     }
 
     public void logout(){

@@ -33,7 +33,7 @@ public class TrackerFragment extends Fragment implements CompoundButton.OnChecke
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_tracker, container, false);
+        return inflater.inflate(R.layout.fragment_tracker, container, false);
     }
 
     private final int PERMISSIONS_REQUEST_LOCATION = 1;

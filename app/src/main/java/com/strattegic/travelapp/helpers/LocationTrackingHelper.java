@@ -26,13 +26,11 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.strattegic.travelapp.common.GPSBroadcastReceiver;
 import com.strattegic.travelapp.common.LoomisaWebservice;
-import com.strattegic.travelapp.common.TrackingDefines;
 import com.strattegic.travelapp.data.LocationContainer;
 import com.strattegic.travelapp.data.LocationData;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -41,10 +39,6 @@ import java.io.UnsupportedEncodingException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**

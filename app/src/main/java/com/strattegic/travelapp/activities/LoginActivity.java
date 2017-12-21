@@ -306,20 +306,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
-        private final String mPassword;
+        private final String email;
+        private final String password;
 
         UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
+            this.email = email;
+            this.password = password;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
 
             // TODO: attempt authentication against a network service.
-            LoomisaWebservice.getInstance().login(String.valueOf(params[0]), String.valueOf(params[1]), getApplicationContext());
-            return false;
+            return LoomisaWebservice.getInstance().login(email, password, getApplicationContext());
 
             // sessionManager.login(mEmail);
             /*
