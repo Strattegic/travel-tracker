@@ -22,6 +22,6 @@ public class LocationContainer {
     }
 
     public void addLocation(LocationData data) {
-        locations.add( data );
+        locations.add( 0, data );
     }
 }

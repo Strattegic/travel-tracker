@@ -13,6 +13,7 @@ import com.strattegic.travelapp.R;
 import com.strattegic.travelapp.common.SessionManager;
 import com.strattegic.travelapp.fragments.HomeFragment;
 import com.strattegic.travelapp.fragments.TrackerFragment;
+import com.strattegic.travelapp.helpers.LocationTrackingHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,10 +40,18 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
+    private LocationTrackingHelper locationTrackingHelper;
+
+    public LocationTrackingHelper getLocationTrackingHelper(){
+        return locationTrackingHelper;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        this.locationTrackingHelper = new LocationTrackingHelper();
 
         session = new SessionManager(getApplicationContext());
         if( session.checkLogin() ) {

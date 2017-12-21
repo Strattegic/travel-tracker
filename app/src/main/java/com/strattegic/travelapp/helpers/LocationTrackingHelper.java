@@ -23,6 +23,7 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.strattegic.travelapp.common.GPSBroadcastReceiver;
 import com.strattegic.travelapp.common.LoomisaWebservice;
@@ -48,14 +49,19 @@ import okhttp3.Response;
 public class LocationTrackingHelper {
 
     private static final int LOCATION_TRACKING_INTENT = 1337;
-    protected static Gson gson;
-    private static FusedLocationProviderClient mFusedLocationClient;
+    public static final String GSON_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    protected Gson gson;
+    private FusedLocationProviderClient mFusedLocationClient;
 
-    public static void toggleGPSTracking(boolean enabled, final Activity activity){
-        LocationTrackingHelper.toggleGPSTracking(enabled, activity, 1000);
+    public LocationTrackingHelper(){
+        this.gson = new GsonBuilder().setDateFormat(GSON_DATE_FORMAT).create();
     }
 
-    public static void toggleGPSTracking(boolean enabled, final Activity activity, int interval){
+    public void toggleGPSTracking(boolean enabled, final Activity activity){
+        toggleGPSTracking(enabled, activity, 1000);
+    }
+
+    public void toggleGPSTracking(boolean enabled, final Activity activity, int interval){
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         Intent intent = new Intent(activity, GPSBroadcastReceiver.class);
@@ -115,7 +121,7 @@ public class LocationTrackingHelper {
      * @param interval
      * @return
      */
-    private static LocationRequest buildLocationRequest(int interval) {
+    private LocationRequest buildLocationRequest(int interval) {
         final LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(interval);
@@ -130,7 +136,7 @@ public class LocationTrackingHelper {
      * @param data
      * @return
      */
-    public static void sendLocation(LocationData data) {
+    public void sendLocation(LocationData data) {
         LoomisaWebservice.getInstance().uploadLocations(data, new Callback(){
 
             @Override
@@ -150,86 +156,5 @@ public class LocationTrackingHelper {
                 }
             }
         });
-    }
-
-    /**
-     * TODO: fertig implementieren
-     * @param data
-     * @param context
-     */
-    public static void saveLocationOnDevice(LocationData data, Context context) {
-
-        if( gson == null ){
-            gson = new Gson();
-        }
-
-        try {
-            boolean hasLocationsFile = false;
-            for( String applicationFile : context.fileList() )
-            {
-                if( applicationFile.equals("locations.json") ){
-                    hasLocationsFile = true;
-                    break;
-                }
-            }
-
-            LocationContainer locationContainer;
-            if( hasLocationsFile ) {
-                FileInputStream locationsInput = context.openFileInput("locations.json");
-                InputStreamReader isr = new InputStreamReader(locationsInput, "UTF-8");
-                Reader reader = new BufferedReader(isr);
-                JsonReader jsonReader = new JsonReader(reader);
-
-                locationContainer = gson.fromJson(jsonReader, LocationContainer.class);
-
-                if( locationContainer == null )
-                {
-                    locationContainer = new LocationContainer();
-                }
-                locationsInput.close();
-            }
-            else{
-                locationContainer = new LocationContainer();
-            }
-            locationContainer.addLocation( data );
-
-            FileOutputStream locationsOutput = context.openFileOutput("locations.json", Context.MODE_PRIVATE);
-            locationsOutput.write(gson.toJson(locationContainer).getBytes());
-            locationsOutput.close();
-
-            //preferences.edit().putString(LocationTrackingHelper.DATA__LAST_KNOWN_LATITUDE, String.valueOf( data.getLat() ) )
-            //        .putString(LocationTrackingHelper.DATA__LAST_KNOWN_LONGITUDE, String.valueOf( data.getLon() ) )
-            //        .commit();
-
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static String getLastLocationsAsText(Context context){
-
-        try {
-            FileInputStream locationsInput = context.openFileInput("locations.json");
-            InputStreamReader isr = new InputStreamReader(locationsInput, "UTF-8");
-            Reader reader = new BufferedReader(isr);
-            JsonReader jsonReader = new JsonReader(reader);
-
-            LocationContainer locationContainer = gson.fromJson(jsonReader, LocationContainer.class);
-            StringBuilder builder = new StringBuilder();
-            for( LocationData loc : locationContainer.getLocations() ){
-                builder.append(loc.getLat()).append(", ").append(loc.getLon());
-                builder.append("\n");
-            }
-            locationsInput.close();
-            isr.close();
-            reader.close();
-            jsonReader.close();
-            return builder.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "";
     }
 }

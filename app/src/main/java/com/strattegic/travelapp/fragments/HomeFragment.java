@@ -20,10 +20,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.strattegic.travelapp.R;
 import com.strattegic.travelapp.common.LoomisaWebservice;
 import com.strattegic.travelapp.common.LoomisaWebserviceCallback;
 import com.strattegic.travelapp.data.LocationData;
+import com.strattegic.travelapp.helpers.LocationTrackingHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,7 +67,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         LoomisaWebservice.getInstance().getLocations(getContext(), new LoomisaWebserviceCallback(getContext()) {
             @Override
             public void onResponse(Call call, okhttp3.Response response) throws IOException {
-                Gson gson = new Gson();
+                Gson gson = new GsonBuilder().setDateFormat(LocationTrackingHelper.GSON_DATE_FORMAT).create();
+
                 final LocationData[] locations = gson.fromJson(response.body().charStream(), LocationData[].class);
                 Log.i("Locations", "successfully received locations" + locations);
 
@@ -93,7 +96,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
             // Date
             TextView dateText = new TextView( getActivity().getBaseContext() );
-            dateText.setText( locations[i].getAddedOn() );
+            dateText.setText( locations[i].getAddedOn() != null ? locations[i].getAddedOn().toString() : "" );
             dateText.setLayoutParams(paramsLong);
             row.addView( dateText );
 

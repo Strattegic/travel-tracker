@@ -5,8 +5,20 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.google.android.gms.location.LocationResult;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
+import com.strattegic.travelapp.data.LocationContainer;
 import com.strattegic.travelapp.data.LocationData;
 import com.strattegic.travelapp.helpers.LocationTrackingHelper;
+import com.strattegic.travelapp.helpers.LocationsFileHelper;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Created by Strattegic on 08/12/2017.
@@ -27,7 +39,9 @@ public class GPSBroadcastReceiver extends BroadcastReceiver {
             data.setLat( result.getLastLocation().getLatitude() );
             data.setLon( result.getLastLocation().getLongitude() );
             // LocationTrackingHelper.sendLocation(data);
-            LocationTrackingHelper.saveLocationOnDevice(data, context);
+
+            LocationsFileHelper fileHelper = new LocationsFileHelper(context);
+            fileHelper.saveLocationOnDevice(data);
         }
         else {
             // TODO: log that there is no location available

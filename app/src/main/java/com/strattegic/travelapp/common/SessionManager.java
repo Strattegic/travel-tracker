@@ -32,6 +32,9 @@ public class SessionManager {
         return pref.getString(PREF_KEY_ACCESS_TOKEN, null);
     }
 
+    public String getEmail(){
+        return pref.getString(PREF_KEY_EMAIL, "");
+    }
     /**
      * Login a user.
      * @param email

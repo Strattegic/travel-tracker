@@ -6,30 +6,32 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.FileObserver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.strattegic.travelapp.R;
+import com.strattegic.travelapp.helpers.LocationsFileCallback;
+import com.strattegic.travelapp.common.SessionManager;
 import com.strattegic.travelapp.common.TrackingDefines;
-import com.strattegic.travelapp.helpers.LocationTrackingHelper;
+import com.strattegic.travelapp.helpers.LocationsFileHelper;
 
 /**
  * Created by Stratti on 12/12/2017.
  */
 
-public class TrackerFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener {
+public class TrackerFragment extends MainFragment
+        implements CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -46,8 +48,12 @@ public class TrackerFragment extends Fragment implements CompoundButton.OnChecke
     private Switch toggleLocationTrackingButton;
     private Switch toggleCellular;
     private SeekBar seekBarInterval;
+    private Button logoutButton;
 
-    SharedPreferences sharedPref;
+    private SharedPreferences sharedPref;
+    private SessionManager sessionManager;
+
+    private LocationsFileHelper locationsFileHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +63,13 @@ public class TrackerFragment extends Fragment implements CompoundButton.OnChecke
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        sessionManager = new SessionManager(getContext());
+        locationsFileHelper = new LocationsFileHelper(getContext());
+
+        ((TextView) view.findViewById(R.id.textView_username)).setText(sessionManager.getEmail());
+        logoutButton = view.findViewById(R.id.button_logout);
+        logoutButton.setOnClickListener(this);
+
         BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation);
         bottomNavigationView.getMenu().findItem(R.id.navigation_tracker).setChecked(true);
 
@@ -83,21 +96,23 @@ public class TrackerFragment extends Fragment implements CompoundButton.OnChecke
         toggleCellular.setChecked(sharedPref.getBoolean(TrackingDefines.SETTINGS_TRACKING_USE_CELLULAR, false));
         seekBarInterval.setProgress( sharedPref.getInt(TrackingDefines.SETTINGS_TRACKING_INTERVAL, TrackingDefines.SETTINGS_TRACKING_DEFAULT_INTERVAL) );
 
-        FileObserver observer = new FileObserver(getContext().getFilesDir().getPath()) { // set up a file observer to watch this directory on sd card
+        locationsFileHelper.addLocationsFileChangeListener(new LocationsFileCallback(){
 
             @Override
-            public void onEvent(int event, String file) {
-                if( "locations.json".equals( file ) && FileObserver.MODIFY == event ){
-                    ((Activity) getContext()).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ((TextView)getView().findViewById(R.id.textView_last_locations)).setText(LocationTrackingHelper.getLastLocationsAsText(getContext()));
-                        }
-                    });
-                }
+            public void onLocationsFileChanged() {
+                updateLastLocations();
             }
-        };
-        observer.startWatching(); //START OBSERVING
+        });
+        updateLastLocations();
+    }
+
+    public void updateLastLocations(){
+        ((Activity) getContext()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView)getView().findViewById(R.id.textView_last_locations)).setText(locationsFileHelper.getLastLocationsAsText(getContext()));
+            }
+        });
     }
 
     @Override
@@ -128,14 +143,14 @@ public class TrackerFragment extends Fragment implements CompoundButton.OnChecke
 
         if (!enableTracking) {
             // disable the tracking
-            LocationTrackingHelper.toggleGPSTracking(false, getActivity());
+            getLocationTrackingHelper().toggleGPSTracking(false, getActivity());
             sharedPref.edit().putBoolean(TrackingDefines.SETTINGS_TRACKING_ENABLED, false).apply();
         } else if (!hasLocationPermission()) {
             // request permissions
             ActivityCompat.requestPermissions(getActivity(), LOCATION_PERMS, PERMISSIONS_REQUEST_LOCATION);
         } else {
             // activate the tracking
-            LocationTrackingHelper.toggleGPSTracking(true, getActivity());
+            getLocationTrackingHelper().toggleGPSTracking(true, getActivity());
             toggleLocationTrackingButton.setChecked(true);
             sharedPref.edit().putBoolean(TrackingDefines.SETTINGS_TRACKING_ENABLED, true).apply();
         }
@@ -175,5 +190,12 @@ public class TrackerFragment extends Fragment implements CompoundButton.OnChecke
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
 
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(view == logoutButton){
+            sessionManager.logout();
+        }
     }
 }

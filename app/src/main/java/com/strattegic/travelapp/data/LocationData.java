@@ -1,5 +1,7 @@
 package com.strattegic.travelapp.data;
 
+import java.util.Date;
+
 /**
  * Created by Stratti on 08/12/2017.
  */
@@ -7,7 +9,7 @@ package com.strattegic.travelapp.data;
 public class LocationData {
     private double lon;
     private double lat;
-    private String addedOn;
+    private Date added_on;
 
     public double getLat() {
         return lat;
@@ -25,11 +27,11 @@ public class LocationData {
         this.lon = lon;
     }
 
-    public String getAddedOn() {
-        return addedOn;
+    public Date getAddedOn() {
+        return added_on;
     }
 
-    public void setAddedOn(String addedOn) {
-        this.addedOn = addedOn;
+    public void setAddedOn(Date added_on) {
+        this.added_on = added_on;
     }
 }
