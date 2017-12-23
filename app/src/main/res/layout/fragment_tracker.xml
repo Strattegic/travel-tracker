@@ -88,8 +88,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:enabled="false"
-                android:max="14"
-                android:progress="0" />
+                android:max="@integer/tracker_maximum_interval"
+                android:progress="@integer/tracker_minimum_interval" />
 
             <TextView
                 android:id="@+id/textView3"

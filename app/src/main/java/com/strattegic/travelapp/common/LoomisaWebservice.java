@@ -27,19 +27,10 @@ public class LoomisaWebservice {
     public static final String WEBSERVICE_CLIENT_SECRET = "asPTKtMKrxirzwgJEUpjXVpGJIjEl8fHFi4UL4Yq";
     public static final String WEBSERVICE_CLIENT_ID = "2";
 
-    private static LoomisaWebservice instance;
-    private static Gson gson;
+    private Gson gson;
 
-    private LoomisaWebservice(){
-        // Singleton
-    }
-
-    public static LoomisaWebservice getInstance(){
-        if( instance == null ){
-            instance = new LoomisaWebservice();
-            gson = new Gson();
-    }
-        return instance;
+    public LoomisaWebservice(){
+        gson = new Gson();
     }
 
     /**

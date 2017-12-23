@@ -73,7 +73,7 @@ public class TrackerFragment extends MainFragment
         BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation);
         bottomNavigationView.getMenu().findItem(R.id.navigation_tracker).setChecked(true);
 
-        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        sharedPref = getContext().getSharedPreferences(TrackingDefines.TRACKING_PREFS_NAME, Context.MODE_PRIVATE);
         toggleLocationTrackingButton = view.findViewById(R.id.switchTrackingToggle);
         toggleLocationTrackingButton.setOnCheckedChangeListener( this );
 
@@ -145,12 +145,11 @@ public class TrackerFragment extends MainFragment
             // disable the tracking
             getLocationTrackingHelper().toggleGPSTracking(false, getActivity());
             sharedPref.edit().putBoolean(TrackingDefines.SETTINGS_TRACKING_ENABLED, false).apply();
-        } else if (!hasLocationPermission()) {
-            // request permissions
-            ActivityCompat.requestPermissions(getActivity(), LOCATION_PERMS, PERMISSIONS_REQUEST_LOCATION);
         } else {
             // activate the tracking
-            getLocationTrackingHelper().toggleGPSTracking(true, getActivity());
+            // because the seekBar always returns the progress starting with 0,
+            // we have to add +1 to make it between 1 and x
+            getLocationTrackingHelper().toggleGPSTracking(true, getActivity(), sharedPref.getInt(TrackingDefines.SETTINGS_TRACKING_INTERVAL, 1));
             toggleLocationTrackingButton.setChecked(true);
             sharedPref.edit().putBoolean(TrackingDefines.SETTINGS_TRACKING_ENABLED, true).apply();
         }
@@ -173,13 +172,8 @@ public class TrackerFragment extends MainFragment
         }
     }
 
-    private boolean hasLocationPermission(){
-        return ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
-
     @Override
     public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-        sharedPref.edit().putInt(TrackingDefines.SETTINGS_TRACKING_INTERVAL, i).apply();
     }
 
     @Override
@@ -189,7 +183,8 @@ public class TrackerFragment extends MainFragment
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-
+        sharedPref.edit().putInt(TrackingDefines.SETTINGS_TRACKING_INTERVAL, seekBar.getProgress()).apply();
+        toggleLocationTracking(sharedPref.getBoolean(TrackingDefines.SETTINGS_TRACKING_ENABLED, true));
     }
 
     @Override

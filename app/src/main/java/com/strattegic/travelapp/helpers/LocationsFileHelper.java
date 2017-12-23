@@ -1,12 +1,14 @@
 package com.strattegic.travelapp.helpers;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.FileObserver;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
+import com.strattegic.travelapp.common.TrackingDefines;
 import com.strattegic.travelapp.data.LocationContainer;
 import com.strattegic.travelapp.data.LocationData;
 
@@ -27,10 +29,12 @@ public class LocationsFileHelper {
 
     private final Context context;
     protected Gson gson;
+    SharedPreferences prefs;
 
     public LocationsFileHelper(Context context) {
         gson = new GsonBuilder().setDateFormat(LocationTrackingHelper.GSON_DATE_FORMAT).create();
         this.context = context;
+        this.prefs = context.getSharedPreferences(TrackingDefines.TRACKING_PREFS_NAME, Context.MODE_PRIVATE);
     }
 
     /**
@@ -72,6 +76,7 @@ public class LocationsFileHelper {
         LocationContainer locationContainer = getLocationsFromFile();
         locationContainer.addLocation( data );
         saveLocationsToFile(locationContainer);
+        prefs.edit().putLong(TrackingDefines.TRACKING_PREFS_LAST_LOCATION_TIMESTAMP, data.getAddedOn().getTime()).apply();
     }
 
     /**

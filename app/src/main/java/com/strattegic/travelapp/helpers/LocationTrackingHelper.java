@@ -3,7 +3,6 @@ package com.strattegic.travelapp.helpers;
 import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -24,19 +23,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
+import com.strattegic.travelapp.R;
 import com.strattegic.travelapp.common.GPSBroadcastReceiver;
 import com.strattegic.travelapp.common.LoomisaWebservice;
-import com.strattegic.travelapp.data.LocationContainer;
 import com.strattegic.travelapp.data.LocationData;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -49,21 +41,47 @@ import okhttp3.Response;
 public class LocationTrackingHelper {
 
     private static final int LOCATION_TRACKING_INTENT = 1337;
+
+    /**
+     * The rate with which the progress slider in the options is multiplied
+     * the slider returns something like 0-14 and has to be converted to milliseconds
+     * 1.8 million = 0.5h
+     */
+    public static final int LOCATION_TRACKING_RATE = 1800000;
+
     public static final String GSON_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     protected Gson gson;
-    private FusedLocationProviderClient mFusedLocationClient;
+    private FusedLocationProviderClient fusedLocationClient;
 
     public LocationTrackingHelper(){
         this.gson = new GsonBuilder().setDateFormat(GSON_DATE_FORMAT).create();
     }
 
+    /**
+     * Toggles the location tracking on/off
+     * When activating the location tracker, it initializes the tracking
+     * with the LOCATION_TRACKING_MINIMUM_INTERVAL
+     * @param enabled
+     * @param activity
+     */
     public void toggleGPSTracking(boolean enabled, final Activity activity){
-        toggleGPSTracking(enabled, activity, 1000);
+        toggleGPSTracking(enabled, activity, 0);
     }
 
+    /**
+     * Toggles the location tracking on/off.
+     * The interval needs to be a value between R.integer.tracker_minimum_interval
+     * and R.integer.tracker_maximum_interval
+     *
+     * CAUTION: The interval needs to be > 0
+     * It will work with the minimum interval but other calculations might be wrong
+     * @param enabled
+     * @param activity
+     * @param interval
+     */
     public void toggleGPSTracking(boolean enabled, final Activity activity, int interval){
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         Intent intent = new Intent(activity, GPSBroadcastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(activity, LocationTrackingHelper.LOCATION_TRACKING_INTENT, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -108,11 +126,11 @@ public class LocationTrackingHelper {
                 Log.d("GPS", "No permission given to track the location");
                 return;
             }
-            mFusedLocationClient.requestLocationUpdates(locationRequest, pendingIntent);
+            fusedLocationClient.requestLocationUpdates(locationRequest, pendingIntent);
         }
         else
         {
-            mFusedLocationClient.removeLocationUpdates(pendingIntent);
+            fusedLocationClient.removeLocationUpdates(pendingIntent);
         }
     }
 
@@ -124,8 +142,8 @@ public class LocationTrackingHelper {
     private LocationRequest buildLocationRequest(int interval) {
         final LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(interval);
-        locationRequest.setFastestInterval(5000);
+        locationRequest.setInterval(interval * LOCATION_TRACKING_RATE);
+        locationRequest.setFastestInterval(LOCATION_TRACKING_RATE);
         return locationRequest;
     }
 
@@ -136,8 +154,8 @@ public class LocationTrackingHelper {
      * @param data
      * @return
      */
-    public void sendLocation(LocationData data) {
-        LoomisaWebservice.getInstance().uploadLocations(data, new Callback(){
+    public void sendLocation(LocationData data, LoomisaWebservice webservice) {
+        webservice.uploadLocations(data, new Callback(){
 
             @Override
             public void onFailure(Call call, IOException e) {

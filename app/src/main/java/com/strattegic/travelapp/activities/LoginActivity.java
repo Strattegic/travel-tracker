@@ -69,6 +69,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mLoginFormView;
 
     private SessionManager sessionManager;
+    private LoomisaWebservice webservice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
 
         sessionManager = new SessionManager(getApplicationContext());
+        webservice = new LoomisaWebservice();
     }
 
     private void populateAutoComplete() {
@@ -318,7 +320,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected Boolean doInBackground(Void... params) {
 
             // TODO: attempt authentication against a network service.
-            return LoomisaWebservice.getInstance().login(email, password, getApplicationContext());
+            return webservice.login(email, password, getApplicationContext());
 
             // sessionManager.login(mEmail);
             /*

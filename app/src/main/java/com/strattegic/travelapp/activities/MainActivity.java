@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.strattegic.travelapp.R;
+import com.strattegic.travelapp.common.LoomisaWebservice;
 import com.strattegic.travelapp.common.SessionManager;
 import com.strattegic.travelapp.fragments.HomeFragment;
 import com.strattegic.travelapp.fragments.TrackerFragment;
@@ -18,6 +19,7 @@ import com.strattegic.travelapp.helpers.LocationTrackingHelper;
 public class MainActivity extends AppCompatActivity {
 
     private SessionManager session;
+    private LoomisaWebservice webservice;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         this.locationTrackingHelper = new LocationTrackingHelper();
+        this.webservice = new LoomisaWebservice();
 
         session = new SessionManager(getApplicationContext());
         if( session.checkLogin() ) {
@@ -64,5 +67,9 @@ public class MainActivity extends AppCompatActivity {
             transaction.replace(R.id.content, new HomeFragment());
             transaction.commit();
         }
+    }
+
+    public LoomisaWebservice getWebservice() {
+        return webservice;
     }
 }

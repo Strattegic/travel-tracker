@@ -36,7 +36,7 @@ import okhttp3.Call;
  * Created by Stratti on 12/12/2017.
  */
 
-public class HomeFragment extends Fragment implements OnMapReadyCallback {
+public class HomeFragment extends MainFragment implements OnMapReadyCallback {
     private GoogleMap map;
     private ArrayList<LatLng> allLocations;
 
@@ -64,7 +64,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
 
         // get the current locations for the user and update the view accordingly
-        LoomisaWebservice.getInstance().getLocations(getContext(), new LoomisaWebserviceCallback(getContext()) {
+        getWebservice().getLocations(getContext(), new LoomisaWebserviceCallback(getContext()) {
             @Override
             public void onResponse(Call call, okhttp3.Response response) throws IOException {
                 Gson gson = new GsonBuilder().setDateFormat(LocationTrackingHelper.GSON_DATE_FORMAT).create();
