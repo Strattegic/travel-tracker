@@ -136,7 +136,7 @@ public class HomeFragment extends MainFragment implements OnMapReadyCallback {
     }
 
     private void drawLocationsOnMap(){
-        if( !allLocations.isEmpty() ){
+        if( !allLocations.isEmpty() && map != null ){
             map.addPolyline(new PolylineOptions()
                     .addAll(allLocations)
                     .width(5)

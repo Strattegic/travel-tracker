@@ -45,12 +45,19 @@ public class GPSBroadcastReceiver extends BroadcastReceiver {
 
     private boolean shouldUpdate(Context context){
         SharedPreferences prefs = context.getSharedPreferences(TrackingDefines.TRACKING_PREFS_NAME, Context.MODE_PRIVATE);
-        long last = prefs.getLong(TrackingDefines.TRACKING_PREFS_LAST_LOCATION_TIMESTAMP, 0);
-        int interval = prefs.getInt(TrackingDefines.SETTINGS_TRACKING_INTERVAL, 0);
-        long shouldRunTime = last + interval * LocationTrackingHelper.LOCATION_TRACKING_RATE;
 
-        if( System.currentTimeMillis() > shouldRunTime ){
-            return true;
+        if( prefs.getBoolean(TrackingDefines.SETTINGS_TRACKING_ENABLED, false ) ) {
+            long last = prefs.getLong(TrackingDefines.TRACKING_PREFS_LAST_LOCATION_TIMESTAMP, 0);
+            int interval = prefs.getInt(TrackingDefines.SETTINGS_TRACKING_INTERVAL, 0);
+
+            // because the interval is 0-based, we have to add +1 to make the minimum interval work
+            // otherwise it would always update the location as soon as the tracker view
+            // is refreshed because last=shouldRunTime
+            long shouldRunTime = last + (interval+1) * LocationTrackingHelper.LOCATION_TRACKING_RATE;
+
+            if (System.currentTimeMillis() > shouldRunTime) {
+                return true;
+            }
         }
         return false;
     }

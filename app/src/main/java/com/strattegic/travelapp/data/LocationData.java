@@ -10,6 +10,11 @@ public class LocationData {
     private double lon;
     private double lat;
     private Date added_on;
+    private boolean alreadySent;
+
+    public LocationData(){
+        alreadySent = false;
+    }
 
     public double getLat() {
         return lat;
@@ -33,5 +38,13 @@ public class LocationData {
 
     public void setAddedOn(Date added_on) {
         this.added_on = added_on;
+    }
+
+    public boolean isAlreadySent() {
+        return alreadySent;
+    }
+
+    public void setAlreadySent(boolean alreadySent) {
+        this.alreadySent = alreadySent;
     }
 }

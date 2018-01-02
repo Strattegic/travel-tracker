@@ -21,6 +21,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.strattegic.travelapp.R;
+import com.strattegic.travelapp.helpers.LocationTrackingHelper;
 import com.strattegic.travelapp.helpers.LocationsFileCallback;
 import com.strattegic.travelapp.common.SessionManager;
 import com.strattegic.travelapp.common.TrackingDefines;
@@ -31,7 +32,8 @@ import com.strattegic.travelapp.helpers.LocationsFileHelper;
  */
 
 public class TrackerFragment extends MainFragment
-        implements CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
+        implements CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -39,12 +41,12 @@ public class TrackerFragment extends MainFragment
     }
 
     private final int PERMISSIONS_REQUEST_LOCATION = 1;
-
     // required permission for the tracking
     private static final String[] LOCATION_PERMS={
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
+
     private Switch toggleLocationTrackingButton;
     private Switch toggleCellular;
     private SeekBar seekBarInterval;
@@ -74,6 +76,7 @@ public class TrackerFragment extends MainFragment
         bottomNavigationView.getMenu().findItem(R.id.navigation_tracker).setChecked(true);
 
         sharedPref = getContext().getSharedPreferences(TrackingDefines.TRACKING_PREFS_NAME, Context.MODE_PRIVATE);
+        sharedPref.registerOnSharedPreferenceChangeListener(this);
         toggleLocationTrackingButton = view.findViewById(R.id.switchTrackingToggle);
         toggleLocationTrackingButton.setOnCheckedChangeListener( this );
 
@@ -123,7 +126,17 @@ public class TrackerFragment extends MainFragment
             getActivity().findViewById(R.id.seekBar_tracking_interval).setEnabled(isChecked);
             getActivity().findViewById(R.id.switch_cellular).setEnabled(isChecked);
 
+            // the user wants to enable the tracking but does not have enough permissions
+            // lets ask him first
+            if( isChecked && !hasLocationPermissions() ){
+                // Log.d("GPS", "No permission given to track the location, trying to get it now");
+                toggleLocationTracking(false);
+                requestPermissions(LOCATION_PERMS, PERMISSIONS_REQUEST_LOCATION);
+                return;
+            }
+
             // toggle location tracking
+            // only used if the user already has the location permission
             toggleLocationTracking(isChecked);
         }
         else if( buttonView.equals(toggleCellular) ){
@@ -134,25 +147,26 @@ public class TrackerFragment extends MainFragment
 
     /**
      * Enables / disables the location tracking
+     * the permission check has to be made before this is used
      * it also toggles the PendingIntent that runs in the background
      * @param enableTracking
      */
     private void toggleLocationTracking( boolean enableTracking ) {
 
-        toggleLocationTrackingButton.setChecked(false);
+        // the seekbar always returns 0 based values
+        getLocationTrackingHelper().toggleGPSTracking(enableTracking, getActivity(), sharedPref.getInt(TrackingDefines.SETTINGS_TRACKING_INTERVAL, 0));
+        toggleLocationTrackingOptions( enableTracking );
+        sharedPref.edit().putBoolean(TrackingDefines.SETTINGS_TRACKING_ENABLED, enableTracking).apply();
+    }
 
-        if (!enableTracking) {
-            // disable the tracking
-            getLocationTrackingHelper().toggleGPSTracking(false, getActivity());
-            sharedPref.edit().putBoolean(TrackingDefines.SETTINGS_TRACKING_ENABLED, false).apply();
-        } else {
-            // activate the tracking
-            // because the seekBar always returns the progress starting with 0,
-            // we have to add +1 to make it between 1 and x
-            getLocationTrackingHelper().toggleGPSTracking(true, getActivity(), sharedPref.getInt(TrackingDefines.SETTINGS_TRACKING_INTERVAL, 1));
-            toggleLocationTrackingButton.setChecked(true);
-            sharedPref.edit().putBoolean(TrackingDefines.SETTINGS_TRACKING_ENABLED, true).apply();
-        }
+    /**
+     * Toggles all the buttons that belong to the Location tracking options
+     * @param enabled
+     */
+    private void toggleLocationTrackingOptions( boolean enabled ){
+        toggleLocationTrackingButton.setChecked(enabled);
+        seekBarInterval.setEnabled(enabled);
+        toggleCellular.setEnabled(enabled);
     }
 
     @Override
@@ -191,6 +205,21 @@ public class TrackerFragment extends MainFragment
     public void onClick(View view) {
         if(view == logoutButton){
             sessionManager.logout();
+        }
+    }
+
+    /**
+     * Checks wether or not the application has the sufficient permissions to track the location
+     * @return
+     */
+    public boolean hasLocationPermissions(){
+        return ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if( key.equals(TrackingDefines.SETTINGS_TRACKING_ENABLED ) ){
+            toggleLocationTrackingButton.setChecked(sharedPreferences.getBoolean(TrackingDefines.SETTINGS_TRACKING_ENABLED, false));
         }
     }
 }

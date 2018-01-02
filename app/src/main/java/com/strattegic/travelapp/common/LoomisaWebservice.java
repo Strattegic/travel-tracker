@@ -1,6 +1,7 @@
 package com.strattegic.travelapp.common;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.strattegic.travelapp.data.LocationData;
@@ -22,10 +23,11 @@ import okhttp3.RequestBody;
 
 public class LoomisaWebservice {
 
-    public static final String WEBSERVICE_URL_LOCATIONS = "http://192.168.100.68/api/locations";
-    public static final String WEBSERVICE_URL_LOGIN = "http://192.168.100.68/oauth/token";
-    public static final String WEBSERVICE_CLIENT_SECRET = "asPTKtMKrxirzwgJEUpjXVpGJIjEl8fHFi4UL4Yq";
-    public static final String WEBSERVICE_CLIENT_ID = "2";
+    public static final String WEBSERVICE_URL_BASE = "http://traxplore.me/";
+    public static final String WEBSERVICE_URL_LOCATIONS = WEBSERVICE_URL_BASE + "api/locations";
+    public static final String WEBSERVICE_URL_LOGIN = WEBSERVICE_URL_BASE + "oauth/token";
+    public static final String WEBSERVICE_CLIENT_SECRET = "bQriBgjayOn9F6SWipzBfibxyruakZAdIJCAPtcZ";
+    public static final String WEBSERVICE_CLIENT_ID = "4";
 
     private Gson gson;
 
@@ -88,6 +90,7 @@ public class LoomisaWebservice {
             } else {
                 OAuthError error = response.getOAuthError();
                 String errorMsg = error.getError();
+                Toast.makeText(context, "Login error" + errorMsg, Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             e.printStackTrace();

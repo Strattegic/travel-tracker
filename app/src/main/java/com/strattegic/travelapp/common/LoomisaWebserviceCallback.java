@@ -22,6 +22,6 @@ public abstract class LoomisaWebserviceCallback implements Callback {
     @Override
     public void onFailure(Call call, IOException e) {
         // Standard webservice error
-        Toast.makeText(context, "Success!", Toast.LENGTH_SHORT).show();
+        // Toast.makeText(context, "Success!", Toast.LENGTH_SHORT).show();
     }
 }
