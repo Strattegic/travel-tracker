@@ -1,4 +1,4 @@
-package com.strattegic.travelapp.activities;
+package com.strattegic.traxplore.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -30,10 +30,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.strattegic.travelapp.R;
-import com.strattegic.travelapp.common.LoomisaWebservice;
-import com.strattegic.travelapp.common.SessionManager;
-import com.strattegic.travelapp.common.TrackingDefines;
+import com.strattegic.traxplore.R;
+import com.strattegic.traxplore.common.TraxploreWebservice;
+import com.strattegic.traxplore.common.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +68,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mLoginFormView;
 
     private SessionManager sessionManager;
-    private LoomisaWebservice webservice;
+    private TraxploreWebservice webservice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +102,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
 
         sessionManager = new SessionManager(getApplicationContext());
-        webservice = new LoomisaWebservice();
+        webservice = new TraxploreWebservice();
     }
 
     private void populateAutoComplete() {

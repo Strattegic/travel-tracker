@@ -1,4 +1,4 @@
-package com.strattegic.travelapp.data;
+package com.strattegic.traxplore.data;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package com.strattegic.travelapp;
+package com.strattegic.traxplore;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

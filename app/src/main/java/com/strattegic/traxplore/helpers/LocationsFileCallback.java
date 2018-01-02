@@ -1,4 +1,4 @@
-package com.strattegic.travelapp.helpers;
+package com.strattegic.traxplore.helpers;
 
 /**
  * Created by Stratti on 21/12/2017.

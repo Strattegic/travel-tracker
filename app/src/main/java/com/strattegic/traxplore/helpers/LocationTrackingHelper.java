@@ -1,14 +1,11 @@
-package com.strattegic.travelapp.helpers;
+package com.strattegic.traxplore.helpers;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.api.ApiException;
@@ -24,10 +21,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.strattegic.travelapp.R;
-import com.strattegic.travelapp.common.GPSBroadcastReceiver;
-import com.strattegic.travelapp.common.LoomisaWebservice;
-import com.strattegic.travelapp.data.LocationData;
+import com.strattegic.traxplore.common.GPSBroadcastReceiver;
+import com.strattegic.traxplore.common.TraxploreWebservice;
+import com.strattegic.traxplore.data.LocationData;
 
 import java.io.IOException;
 
@@ -144,7 +140,7 @@ public class LocationTrackingHelper {
      * @param data
      * @return
      */
-    public void sendLocation(LocationData data, LoomisaWebservice webservice) {
+    public void sendLocation(LocationData data, TraxploreWebservice webservice) {
         webservice.uploadLocations(data, new Callback(){
 
             @Override

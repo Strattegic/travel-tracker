@@ -1,4 +1,4 @@
-package com.strattegic.travelapp.fragments;
+package com.strattegic.traxplore.fragments;
 
 import android.Manifest;
 import android.app.Activity;
@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +19,11 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.strattegic.travelapp.R;
-import com.strattegic.travelapp.helpers.LocationTrackingHelper;
-import com.strattegic.travelapp.helpers.LocationsFileCallback;
-import com.strattegic.travelapp.common.SessionManager;
-import com.strattegic.travelapp.common.TrackingDefines;
-import com.strattegic.travelapp.helpers.LocationsFileHelper;
+import com.strattegic.traxplore.R;
+import com.strattegic.traxplore.helpers.LocationsFileCallback;
+import com.strattegic.traxplore.common.SessionManager;
+import com.strattegic.traxplore.common.TrackingDefines;
+import com.strattegic.traxplore.helpers.LocationsFileHelper;
 
 /**
  * Created by Stratti on 12/12/2017.

@@ -1,10 +1,10 @@
-package com.strattegic.travelapp.common;
+package com.strattegic.traxplore.common;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
-import com.strattegic.travelapp.activities.LoginActivity;
+import com.strattegic.traxplore.activities.LoginActivity;
 
 /**
  * Created by Stratti on 13/12/2017.

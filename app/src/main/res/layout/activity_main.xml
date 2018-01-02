@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.strattegic.travelapp.activities.MainActivity">
+    tools:context="com.strattegic.traxplore.activities.MainActivity">
 
     <ScrollView
         android:id="@+id/content"

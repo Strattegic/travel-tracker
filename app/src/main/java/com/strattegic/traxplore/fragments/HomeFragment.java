@@ -1,11 +1,10 @@
-package com.strattegic.travelapp.fragments;
+package com.strattegic.traxplore.fragments;
 
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +20,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.strattegic.travelapp.R;
-import com.strattegic.travelapp.common.LoomisaWebservice;
-import com.strattegic.travelapp.common.LoomisaWebserviceCallback;
-import com.strattegic.travelapp.data.LocationData;
-import com.strattegic.travelapp.helpers.LocationTrackingHelper;
+import com.strattegic.traxplore.R;
+import com.strattegic.traxplore.common.TraxploreWebserviceCallback;
+import com.strattegic.traxplore.data.LocationData;
+import com.strattegic.traxplore.helpers.LocationTrackingHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,7 +62,7 @@ public class HomeFragment extends MainFragment implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
 
         // get the current locations for the user and update the view accordingly
-        getWebservice().getLocations(getContext(), new LoomisaWebserviceCallback(getContext()) {
+        getWebservice().getLocations(getContext(), new TraxploreWebserviceCallback(getContext()) {
             @Override
             public void onResponse(Call call, okhttp3.Response response) throws IOException {
                 Gson gson = new GsonBuilder().setDateFormat(LocationTrackingHelper.GSON_DATE_FORMAT).create();

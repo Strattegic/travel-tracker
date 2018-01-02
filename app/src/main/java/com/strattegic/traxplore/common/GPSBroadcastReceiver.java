@@ -1,4 +1,4 @@
-package com.strattegic.travelapp.common;
+package com.strattegic.traxplore.common;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,9 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 
 import com.google.android.gms.location.LocationResult;
-import com.strattegic.travelapp.data.LocationData;
-import com.strattegic.travelapp.helpers.LocationTrackingHelper;
-import com.strattegic.travelapp.helpers.LocationsFileHelper;
+import com.strattegic.traxplore.data.LocationData;
+import com.strattegic.traxplore.helpers.LocationTrackingHelper;
+import com.strattegic.traxplore.helpers.LocationsFileHelper;
 
 import java.util.Date;
 

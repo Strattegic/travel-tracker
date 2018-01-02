@@ -1,10 +1,10 @@
-package com.strattegic.travelapp.common;
+package com.strattegic.traxplore.common;
 
 import android.content.Context;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.strattegic.travelapp.data.LocationData;
+import com.strattegic.traxplore.data.LocationData;
 
 import java.io.IOException;
 
@@ -21,7 +21,7 @@ import okhttp3.RequestBody;
  * Created by Stratti on 18/12/2017.
  */
 
-public class LoomisaWebservice {
+public class TraxploreWebservice {
 
     public static final String WEBSERVICE_URL_BASE = "http://traxplore.me/";
     public static final String WEBSERVICE_URL_LOCATIONS = WEBSERVICE_URL_BASE + "api/locations";
@@ -31,7 +31,7 @@ public class LoomisaWebservice {
 
     private Gson gson;
 
-    public LoomisaWebservice(){
+    public TraxploreWebservice(){
         gson = new Gson();
     }
 
@@ -53,7 +53,7 @@ public class LoomisaWebservice {
         client.newCall(request).enqueue(callback);
     }
 
-    public void getLocations(Context context, LoomisaWebserviceCallback callback){
+    public void getLocations(Context context, TraxploreWebserviceCallback callback){
         SessionManager sessionManager = new SessionManager(context);
         OkHttpClient client = new OkHttpClient();
 

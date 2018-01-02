@@ -1,4 +1,4 @@
-package com.strattegic.travelapp.helpers;
+package com.strattegic.traxplore.helpers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,9 +8,9 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
-import com.strattegic.travelapp.common.TrackingDefines;
-import com.strattegic.travelapp.data.LocationContainer;
-import com.strattegic.travelapp.data.LocationData;
+import com.strattegic.traxplore.common.TrackingDefines;
+import com.strattegic.traxplore.data.LocationContainer;
+import com.strattegic.traxplore.data.LocationData;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

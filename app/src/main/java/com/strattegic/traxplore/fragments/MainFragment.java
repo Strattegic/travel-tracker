@@ -1,10 +1,10 @@
-package com.strattegic.travelapp.fragments;
+package com.strattegic.traxplore.fragments;
 
 import android.support.v4.app.Fragment;
 
-import com.strattegic.travelapp.activities.MainActivity;
-import com.strattegic.travelapp.common.LoomisaWebservice;
-import com.strattegic.travelapp.helpers.LocationTrackingHelper;
+import com.strattegic.traxplore.activities.MainActivity;
+import com.strattegic.traxplore.common.TraxploreWebservice;
+import com.strattegic.traxplore.helpers.LocationTrackingHelper;
 
 /**
  * Created by Stratti on 21/12/2017.
@@ -16,7 +16,7 @@ public class MainFragment extends Fragment {
         return ((MainActivity)this.getActivity()).getLocationTrackingHelper();
     }
 
-    public LoomisaWebservice getWebservice(){
+    public TraxploreWebservice getWebservice(){
         return ((MainActivity)this.getActivity()).getWebservice();
     }
 }

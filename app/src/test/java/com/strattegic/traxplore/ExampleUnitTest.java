@@ -1,4 +1,4 @@
-package com.strattegic.travelapp;
+package com.strattegic.traxplore;
 
 import org.junit.Test;
 

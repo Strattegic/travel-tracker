@@ -1,4 +1,4 @@
-package com.strattegic.travelapp.common;
+package com.strattegic.traxplore.common;
 
 /**
  * Created by Stratti on 11/12/2017.

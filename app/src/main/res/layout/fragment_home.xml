@@ -9,7 +9,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        tools:context="com.strattegic.travelapp.MapsActivity" />
+        tools:context="com.strattegic.traxplore.MapsActivity" />
 
     <TextView
         android:id="@+id/textView2"

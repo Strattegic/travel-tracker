@@ -1,7 +1,6 @@
-package com.strattegic.travelapp.common;
+package com.strattegic.traxplore.common;
 
 import android.content.Context;
-import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -12,11 +11,11 @@ import okhttp3.Callback;
  * Created by Strattegic on 21/12/2017.
  */
 
-public abstract class LoomisaWebserviceCallback implements Callback {
+public abstract class TraxploreWebserviceCallback implements Callback {
 
     private final Context context;
 
-    public LoomisaWebserviceCallback(Context context){
+    public TraxploreWebserviceCallback(Context context){
         this.context = context;
     }
     @Override
