@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
 
         sessionManager = new SessionManager(getApplicationContext());
-        webservice = new TraxploreWebservice();
+        webservice = new TraxploreWebservice(sessionManager);
     }
 
     private void populateAutoComplete() {

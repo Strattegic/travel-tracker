@@ -48,7 +48,11 @@ public class SessionManager {
     }
 
     public boolean checkLogin(){
+
+        return this.isLoggedIn();
+
         // Check login status
+        /*
         if(!this.isLoggedIn()){
             // user is not logged in redirect him to Login Activity
             Intent i = new Intent(context, LoginActivity.class);
@@ -61,8 +65,7 @@ public class SessionManager {
             // Staring Login Activity
             context.startActivity(i);
             return false;
-        }
-        return true;
+        }*/
     }
 
     public void logout(){

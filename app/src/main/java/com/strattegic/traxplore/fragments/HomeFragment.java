@@ -9,7 +9,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -22,6 +24,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.strattegic.traxplore.R;
 import com.strattegic.traxplore.common.TraxploreWebserviceCallback;
+import com.strattegic.traxplore.data.Journey;
 import com.strattegic.traxplore.data.LocationData;
 import com.strattegic.traxplore.helpers.LocationTrackingHelper;
 
@@ -61,24 +64,70 @@ public class HomeFragment extends MainFragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // get the current locations for the user and update the view accordingly
-        getWebservice().getLocations(getContext(), new TraxploreWebserviceCallback(getContext()) {
-            @Override
-            public void onResponse(Call call, okhttp3.Response response) throws IOException {
-                Gson gson = new GsonBuilder().setDateFormat(LocationTrackingHelper.GSON_DATE_FORMAT).create();
+        if( getSessionManager().checkLogin() ) {
 
-                final LocationData[] locations = gson.fromJson(response.body().charStream(), LocationData[].class);
-                Log.i("Locations", "successfully received locations" + locations);
+            getWebservice().getJourneys(new TraxploreWebserviceCallback(getContext()) {
+                @Override
+                public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                    Gson gson = new GsonBuilder().setDateFormat(LocationTrackingHelper.GSON_DATE_FORMAT).create();
 
-                // update the UI
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateLocations(locations);
+                    String body = response.body().string();
+
+                    if (response.code() == 401) {
+                        // unauthorized! go back to the login activity
                     }
-                });
-            }
-        });
+                    final Journey[] journeys = gson.fromJson(body, Journey[].class);
+                    Log.i("Journeys", "successfully received locations" + journeys);
+
+                    // update the UI
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateJourneys(journeys);
+                        }
+                    });
+                }
+            });
+
+            /*
+            // get the current locations for the user and update the view accordingly
+            getWebservice().getLocations(new TraxploreWebserviceCallback(getContext()) {
+                @Override
+                public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                    Gson gson = new GsonBuilder().setDateFormat(LocationTrackingHelper.GSON_DATE_FORMAT).create();
+
+                    String body = response.body().string();
+
+                    if (response.code() == 401) {
+                        // unauthorized! go back to the login activity
+                    }
+                    final LocationData[] locations = gson.fromJson(body, LocationData[].class);
+                    Log.i("Locations", "successfully received locations" + locations);
+
+                    // update the UI
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateLocations(locations);
+                        }
+                    });
+                }
+            });
+            */
+        }
+    }
+
+    private void updateJourneys(Journey[] journeys){
+        ArrayList<String> spinnerOptions = new ArrayList<>();
+
+        for (int i = 0; i < journeys.length; i++) {
+            spinnerOptions.add( journeys[i].getName() );
+        }
+
+        Spinner journeysSpinner = getActivity().findViewById(R.id.spinner_journeys);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
+        journeysSpinner.setAdapter(adapter);
     }
 
     private void updateLocations(LocationData[] locations) {

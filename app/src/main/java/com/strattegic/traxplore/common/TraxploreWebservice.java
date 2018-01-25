@@ -23,16 +23,20 @@ import okhttp3.RequestBody;
 
 public class TraxploreWebservice {
 
-    public static final String WEBSERVICE_URL_BASE = "http://traxplore.me/";
+    public static final String WEBSERVICE_URL_BASE = "http://192.168.100.68/";//"http://traxplore.me/";
     public static final String WEBSERVICE_URL_LOCATIONS = WEBSERVICE_URL_BASE + "api/locations";
+    public static final String WEBSERVICE_URL_JOURNEYS = WEBSERVICE_URL_BASE + "api/journeys";
+
     public static final String WEBSERVICE_URL_LOGIN = WEBSERVICE_URL_BASE + "oauth/token";
-    public static final String WEBSERVICE_CLIENT_SECRET = "bQriBgjayOn9F6SWipzBfibxyruakZAdIJCAPtcZ";
-    public static final String WEBSERVICE_CLIENT_ID = "4";
+    public static final String WEBSERVICE_CLIENT_SECRET = "bCR2uoCK8j8PbND7mdmCgdDHEBTW5oSKdIkc1Yxo";//"bQriBgjayOn9F6SWipzBfibxyruakZAdIJCAPtcZ";
+    public static final String WEBSERVICE_CLIENT_ID = "2";//"4";
+    private final SessionManager sessionManager;
 
     private Gson gson;
 
-    public TraxploreWebservice(){
+    public TraxploreWebservice( SessionManager sessionManager ){
         gson = new Gson();
+        this.sessionManager = sessionManager;
     }
 
     /**
@@ -53,8 +57,18 @@ public class TraxploreWebservice {
         client.newCall(request).enqueue(callback);
     }
 
-    public void getLocations(Context context, TraxploreWebserviceCallback callback){
-        SessionManager sessionManager = new SessionManager(context);
+    public void getJourneys(TraxploreWebserviceCallback callback){
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(WEBSERVICE_URL_JOURNEYS)
+                .header("Authorization", "Bearer " + sessionManager.getAccessToken())
+                .addHeader("Accept", "application/json")
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
+    public void getLocations(TraxploreWebserviceCallback callback){
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
@@ -90,7 +104,7 @@ public class TraxploreWebservice {
             } else {
                 OAuthError error = response.getOAuthError();
                 String errorMsg = error.getError();
-                Toast.makeText(context, "Login error" + errorMsg, Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "Login error" + errorMsg, Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             e.printStackTrace();

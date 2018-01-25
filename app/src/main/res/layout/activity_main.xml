@@ -13,7 +13,20 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="15dp"></ScrollView>
+        android:padding="15dp">
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/textView_notLoggedInMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_red_dark"
+        android:padding="3dp"
+        android:text="Not logged in. Please login to sync the map and transfer your locations"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
